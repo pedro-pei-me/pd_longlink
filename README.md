@@ -1,5 +1,7 @@
 # PD LongLink
 
+[中文](/README_CN.md) | [English](/README.md)
+
 Production-grade long connection library for Flutter, supporting WebSocket, System WebSocket and Server-Sent Events (SSE) with auto-reconnect, heartbeat and lifecycle awareness.
 
 ## Features

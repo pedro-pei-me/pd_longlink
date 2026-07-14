@@ -1,5 +1,7 @@
 # PD LongLink
 
+[中文](/README_CN.md) | [English](/README.md)
+
 面向 Flutter 的生产级长连接库，支持 WebSocket、系统 WebSocket 和 Server-Sent Events (SSE)，具备自动重连、心跳检测和生命周期感知能力。
 
 ## 功能特性
