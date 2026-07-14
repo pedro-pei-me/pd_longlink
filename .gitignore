@@ -1,0 +1,72 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/
+
+# Flutter/Dart/Pub related
+# Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
+/pubspec.lock
+**/pubspec.lock
+**/doc/api/
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# FVM Version Cache
+.fvm/
+
+# Android related
+*.apk
+*.aar
+*.so
+.android/
+.gradle/
+local.properties
+android/app/build/
+android/key.properties
+
+# iOS related
+*.ipa
+*.symbols
+Pods/
+Podfile.lock
+*.xcworkspace
+*.xcuserdata
+ios/Flutter/Flutter.framework
+ios/Runner/GeneratedPluginRegistrant.swift
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Test coverage
+coverage/
+lcov.info
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# macOS specific
+.AppleDouble
+.LSOverride
+Icon
