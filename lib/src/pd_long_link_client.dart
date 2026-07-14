@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'pd_long_link_core.dart';
+import 'pd_config.dart';
+import 'pd_enums.dart';
+import 'pd_event.dart';
 import 'pd_logger.dart';
 import 'pd_log_types.dart';
+import 'pd_transport.dart';
 import 'transport/pd_system_websocket_transport.dart';
 import 'transport/pd_sse_transport_stub.dart'
     if (dart.library.io) 'transport/pd_sse_transport.dart'
@@ -461,7 +464,8 @@ class PDLongLinkClient with WidgetsBindingObserver {
 
   /// 断开连接。
   ///
-  /// [closeCode] WebSocket 关闭码；[closeReason] 关闭原因。
+  /// [closeCode] WebSocket 关闭码；
+  /// [closeReason] 关闭原因。
   Future<void> disconnect({int? closeCode, String? closeReason}) async {
     if (_isDisposed) return;
 

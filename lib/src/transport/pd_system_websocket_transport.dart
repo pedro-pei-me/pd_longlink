@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../pd_long_link_core.dart';
+import '../pd_enums.dart';
+import '../pd_event.dart';
 import '../pd_logger.dart';
+import '../pd_transport.dart';
 
 class PDSystemWebSocketTransport implements PDLongLinkTransport {
   static const MethodChannel _channel = MethodChannel('pd_longlink');

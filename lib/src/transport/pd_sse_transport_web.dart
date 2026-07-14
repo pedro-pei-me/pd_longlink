@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:html';
 
-import '../pd_long_link_core.dart';
+import '../pd_config.dart';
+import '../pd_enums.dart';
+import '../pd_event.dart';
 import '../pd_logger.dart';
+import '../pd_transport.dart';
 
 class PDSseTransportWeb implements PDLongLinkTransport {
   final StreamController<PDLongLinkEvent> _events = StreamController<PDLongLinkEvent>.broadcast();

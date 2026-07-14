@@ -17,7 +17,9 @@ class PDLogger {
 
   /// 创建日志记录器。
   ///
-  /// [enableLogging] 是否启用日志；[logLevel] 日志级别；[logCallback] 自定义回调。
+  /// [enableLogging] 是否启用日志；
+  /// [logLevel] 日志级别；
+  /// [logCallback] 自定义回调。
   PDLogger({
     this.enableLogging = true,
     this.logLevel = PDLogLevel.warning,
@@ -26,7 +28,10 @@ class PDLogger {
 
   /// 记录错误级别日志。
   ///
-  /// [module] 模块名；[message] 日志消息；[error] 错误对象；[stackTrace] 堆栈跟踪。
+  /// [module] 模块名；
+  /// [message] 日志消息；
+  /// [error] 错误对象；
+  /// [stackTrace] 堆栈跟踪。
   void logError(
     String module,
     String message, {
@@ -38,7 +43,10 @@ class PDLogger {
 
   /// 记录警告级别日志。
   ///
-  /// [module] 模块名；[message] 日志消息；[error] 错误对象；[stackTrace] 堆栈跟踪。
+  /// [module] 模块名；
+  /// [message] 日志消息；
+  /// [error] 错误对象；
+  /// [stackTrace] 堆栈跟踪。
   void logWarning(
     String module,
     String message, {
@@ -50,14 +58,16 @@ class PDLogger {
 
   /// 记录信息级别日志。
   ///
-  /// [module] 模块名；[message] 日志消息。
+  /// [module] 模块名；
+  /// [message] 日志消息。
   void logInfo(String module, String message) {
     _log(PDLogLevel.info, module, message, null, null);
   }
 
   /// 记录调试级别日志。
   ///
-  /// [module] 模块名；[message] 日志消息。
+  /// [module] 模块名；
+  /// [message] 日志消息。
   void logDebug(String module, String message) {
     _log(PDLogLevel.debug, module, message, null, null);
   }
