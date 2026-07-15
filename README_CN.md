@@ -10,13 +10,13 @@
 - **自动重连**：带抖动的指数退避策略
 - **心跳检测**：周期性 ping/pong 维持连接健康状态
 - **生命周期感知**：自动响应应用前后台切换
-- **跨平台**：iOS/Android/Web
+- **跨平台**：iOS/Android/Web/macOS/Windows/Linux
 
 ## 安装
 
 ```yaml
 dependencies:
-  pd_longlink: ^0.1.0
+  pd_longlink: ^1.0.0
 ```
 
 ## 快速开始
@@ -87,11 +87,34 @@ void main() {
 
 #### PDLogLevel
 
-| 值        | 说明            |
-| --------- | --------------- |
-| `error`   | 仅错误日志      |
-| `warning` | 错误 + 警告日志 |
-| `debug`   | 全部日志        |
+| 值        | 说明                          |
+| --------- | ----------------------------- |
+| `error`   | 仅错误日志                    |
+| `warning` | 错误 + 警告日志（默认级别）   |
+| `info`    | 错误 + 警告 + 信息日志        |
+| `debug`   | 全部日志                      |
+
+#### PDLongLinkErrorCode
+
+| 值                              | 说明                       |
+| ------------------------------- | -------------------------- |
+| `unknown`                       | 未知错误                   |
+| `connectionTimeout`             | 连接超时                   |
+| `authenticationFailed`          | 认证失败                   |
+| `networkUnavailable`            | 网络不可用                 |
+| `protocolError`                 | 协议错误                   |
+| `heartbeatTimeout`              | 心跳超时                   |
+| `connectionClosed`              | 连接已关闭                 |
+| `sendFailed`                    | 发送失败                   |
+| `clientDisposed`                | 客户端已释放               |
+| `maxReconnectAttemptsReached`   | 达到最大重连次数           |
+
+#### PDMessageQueueOverflowStrategy
+
+| 值            | 说明             |
+| ------------- | ---------------- |
+| `dropOldest`  | 丢弃最旧的消息   |
+| `dropNewest`  | 丢弃最新的消息   |
 
 ### 配置类
 
@@ -108,9 +131,8 @@ const PDLongLinkConfig({
   this.autoConnect = false,
   this.enableHeartbeat = true,
   this.sseConfig,                       // SSE 模式专用配置
-  this.enableLogging = !kReleaseMode,
-  this.logLevel = PDLogLevel.debug,
-  this.logCallback,
+  this.messageQueueConfig = const PDMessageQueueConfig(),  // 消息队列配置
+  this.logger,                          // 自定义日志实例
 });
 ```
 
@@ -137,6 +159,7 @@ const PDHeartbeatConfig({
   this.interval = const Duration(seconds: 30),
   this.timeout = const Duration(seconds: 10),
   this.pingMessage = 'ping',
+  this.pongMessage = 'pong',
 });
 ```
 
@@ -153,6 +176,16 @@ const PDSseConfig({
 });
 ```
 
+#### PDMessageQueueConfig
+
+```dart
+const PDMessageQueueConfig({
+  this.enabled = false,                                                       // 是否启用消息队列
+  this.maxSize = 100,                                                         // 队列最大容量
+  this.overflowStrategy = PDMessageQueueOverflowStrategy.dropOldest,         // 溢出策略
+});
+```
+
 ### PDLongLinkClient
 
 #### 构造函数
@@ -163,11 +196,12 @@ PDLongLinkClient({required PDLongLinkConfig config})
 
 #### 属性
 
-| 属性           | 类型                      | 说明         |
-| -------------- | ------------------------- | ------------ |
-| `state`        | `Stream<PDLongLinkState>` | 状态变化流   |
-| `events`       | `Stream<PDLongLinkEvent>` | 事件流       |
-| `currentState` | `PDLongLinkState`         | 当前连接状态 |
+| 属性           | 类型                      | 说明                                 |
+| -------------- | ------------------------- | ------------------------------------ |
+| `state`        | `Stream<PDLongLinkState>` | 状态变化流                           |
+| `events`       | `Stream<PDLongLinkEvent>` | 事件流                               |
+| `currentState` | `PDLongLinkState`         | 当前连接状态                         |
+| `lastEventId`  | `String?`                 | 上次事件 ID（SSE 模式下用于断点续传） |
 
 #### 方法
 
@@ -209,6 +243,7 @@ const PDLongLinkEvent({
   this.text,
   this.binary,
   this.error,
+  this.errorCode,
   this.closeCode,
   this.closeReason,
 });
@@ -216,18 +251,33 @@ const PDLongLinkEvent({
 
 ### PDLogger
 
+`PDLogger` 为实例类，可通过 `PDLongLinkConfig.logger` 注入自定义实例，未提供时客户端会创建默认实例（日志级别为 `warning`）。
+
 ```dart
-PDLogger.configure({
-  required bool enableLogging,
-  required PDLogLevel logLevel,
-  PDLogCallback? logCallback,
+PDLogger({
+  this.enableLogging = true,
+  this.logLevel = PDLogLevel.warning,
+  this.logCallback,
 });
 ```
+
+实例方法：
+
+- `logDebug(String module, String message)`：记录调试级别日志
+- `logInfo(String module, String message)`：记录信息级别日志
+- `logWarning(String module, String message, {Object? error, StackTrace? stackTrace})`：记录警告级别日志
+- `logError(String module, String message, {Object? error, StackTrace? stackTrace})`：记录错误级别日志
+
+`PDLongLinkClient` 上提供以下日志代理方法，便于运行时动态调整日志行为：
+
+- `setLogLevel(PDLogLevel level)`：设置日志级别
+- `enableLogging(bool enable)`：启用或禁用日志
+- `setLogCallback(PDLogCallback? callback)`：设置自定义日志回调
 
 ### PDLongLinkTransportException
 
 ```dart
-const PDLongLinkTransportException(this.message);
+const PDLongLinkTransportException(this.message, {this.errorCode});
 ```
 
 ## 平台行为
@@ -377,7 +427,7 @@ class _LongLinkDemoState extends State<LongLinkDemo> {
 2. **SSE 限制**：SSE 模式仅支持接收消息，不支持发送
 3. **System 模式**：仅在 Android/iOS 上可用，其他平台会降级到 IO 模式
 4. **生命周期**：客户端会自动监听应用生命周期事件
-5. **日志**：默认在 Release 模式下关闭
+5. **日志**：默认日志级别为 warning
 
 ## 许可证
 

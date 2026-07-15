@@ -1,7 +1,16 @@
 name: pd_longlink
 description: "Production-grade long connection library for Flutter, supporting WebSocket, System WebSocket and Server-Sent Events (SSE) with auto-reconnect, heartbeat and lifecycle awareness."
-version: 0.1.0
+version: 1.0.0
 homepage: https://github.com/pedro/pd_longlink
+repository: https://github.com/pedro/pd_longlink
+issue_tracker: https://github.com/pedro/pd_longlink/issues
+topics:
+  - websocket
+  - sse
+  - long-connection
+  - networking
+  - reconnect
+license: MIT
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

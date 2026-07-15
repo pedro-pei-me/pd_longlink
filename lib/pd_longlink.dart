@@ -1,3 +1,7 @@
+/// Production-grade long connection library for Flutter.
+///
+/// Supports WebSocket, System WebSocket and Server-Sent Events (SSE)
+/// with auto-reconnect, heartbeat and lifecycle awareness.
 library pd_longlink;
 
 export 'src/pd_enums.dart';

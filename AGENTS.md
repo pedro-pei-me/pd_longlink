@@ -45,23 +45,23 @@ pd_longlink/
 
 ### 当前版本
 
-| 工具 | 版本 |
-|------|------|
-| Flutter | `3.10.6` |
+| 工具     | 版本            |
+| -------- | --------------- |
+| Flutter  | `3.10.6`        |
 | Dart SDK | 随 Flutter 锁定 |
 
 ### 命令前缀规则
 
 **所有 `flutter` 和 `dart` 命令必须加 `fvm` 前缀。** 禁止直接调用裸命令。
 
-| ❌ 禁止 | ✅ 正确 |
-|---------|---------|
+| ❌ 禁止           | ✅ 正确               |
+| ----------------- | --------------------- |
 | `flutter pub get` | `fvm flutter pub get` |
 | `flutter analyze` | `fvm flutter analyze` |
-| `flutter test` | `fvm flutter test` |
-| `flutter run` | `fvm flutter run` |
-| `dart format .` | `fvm dart format .` |
-| `dart analyze` | `fvm dart analyze` |
+| `flutter test`    | `fvm flutter test`    |
+| `flutter run`     | `fvm flutter run`     |
+| `dart format .`   | `fvm dart format .`   |
+| `dart analyze`    | `fvm dart analyze`    |
 
 ### 执行位置
 
@@ -107,15 +107,15 @@ fvm dart pub publish --dry-run
 
 ### 3.1 命名规范
 
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 类 / 枚举 / typedef / 类型参数 | `PascalCase` | `PDLongLinkClient`, `PDLogLevel` |
-| 库 / 包 / 目录 / 源文件 | `snake_case` | `pd_long_link_client.dart` |
-| 变量 / 常量 / 参数 / 命名参数 | `camelCase` | `connectTimeout`, `baseDelay` |
-| 库前缀（import） | `snake_case` + 下划线 | `import 'dart:io' as io;` |
-| 私有成员 | `camelCase` 前缀 `_` | `_transport`, `_logger` |
-| 枚举值 | `camelCase` | `disconnected`, `heartbeatTimeout` |
-| 常量（static const / 顶级 final）| `camelCase` | `defaultTimeout` |
+| 类型                              | 规范                  | 示例                               |
+| --------------------------------- | --------------------- | ---------------------------------- |
+| 类 / 枚举 / typedef / 类型参数    | `PascalCase`          | `PDLongLinkClient`, `PDLogLevel`   |
+| 库 / 包 / 目录 / 源文件           | `snake_case`          | `pd_long_link_client.dart`         |
+| 变量 / 常量 / 参数 / 命名参数     | `camelCase`           | `connectTimeout`, `baseDelay`      |
+| 库前缀（import）                  | `snake_case` + 下划线 | `import 'dart:io' as io;`          |
+| 私有成员                          | `camelCase` 前缀 `_`  | `_transport`, `_logger`            |
+| 枚举值                            | `camelCase`           | `disconnected`, `heartbeatTimeout` |
+| 常量（static const / 顶级 final） | `camelCase`           | `defaultTimeout`                   |
 
 ### 3.2 导入规范
 
@@ -317,7 +317,7 @@ Column(  // 内容过多会溢出
 - 参数用 `[paramName]` 标注
 - 使用代码示例说明复杂用法
 
-```dart
+````dart
 /// 建立与指定 URI 的长连接。
 ///
 /// 连接成功后会触发 [PDLongLinkEventType.open] 事件。
@@ -332,7 +332,7 @@ Column(  // 内容过多会溢出
 ///
 /// 如果连接失败，会进入自动重连逻辑（如配置启用）。
 Future<void> connect() async { ... }
-```
+````
 
 ### 5.2 行内注释
 
@@ -418,18 +418,21 @@ import 'transport/pd_sse_transport_stub.dart'
 
 遵循 [SemVer](https://semver.org/lang/zh-CN/)：`MAJOR.MINOR.PATCH`
 
-| 版本变化 | 触发条件 |
-|---------|---------|
+| 版本变化 | 触发条件                      |
+| -------- | ----------------------------- |
 | MAJOR +1 | 破坏性变更（Breaking Change） |
-| MINOR +1 | 向后兼容的新功能 |
-| PATCH +1 | 向后兼容的问题修复 |
+| MINOR +1 | 向后兼容的新功能              |
+| PATCH +1 | 向后兼容的问题修复            |
 
 ### 8.2 发布检查清单
 
 1. 更新 `pubspec.yaml` 版本号
 2. 更新 `CHANGELOG.md`（英文）
-  - 更新 `README_CN.md`（中文）非必须项
-  - 更新 `README.md`（英文）非必须项
+
+- 涉及到日期的内容必须更新为当前日期, 通过命令 `date +%Y-%m-%d` 获取当前日期.
+- 更新 `README_CN.md`（中文）非必须项
+- 更新 `README.md`（英文）非必须项
+
 3. 运行 `fvm flutter analyze` — 必须零 error、零 warning
 4. 运行 `fvm flutter test` — 必须全部通过
 5. 运行 `fvm dart doc` — 文档无报错
@@ -448,12 +451,12 @@ import 'transport/pd_sse_transport_stub.dart'
 
 ### 9.2 日志级别使用
 
-| 级别 | 使用场景 |
-|------|---------|
-| `debug` | 开发调试信息（连接详情、心跳发送等） |
-| `info` | 重要业务事件（连接成功、断开、重连开始） |
+| 级别      | 使用场景                                       |
+| --------- | ---------------------------------------------- |
+| `debug`   | 开发调试信息（连接详情、心跳发送等）           |
+| `info`    | 重要业务事件（连接成功、断开、重连开始）       |
 | `warning` | 异常情况但不影响核心功能（重连失败但仍在尝试） |
-| `error` | 严重错误（连接完全失败、心跳超时、发送失败） |
+| `error`   | 严重错误（连接完全失败、心跳超时、发送失败）   |
 
 ---
 
@@ -462,6 +465,7 @@ import 'transport/pd_sse_transport_stub.dart'
 ### Q: IDE 提示使用了不存在于当前 SDK 版本的 API？
 
 A: 检查 `.dart_tool/version` 是否显示 `3.10.6`。若显示其他版本：
+
 1. 删除 `.dart_tool/` 目录
 2. 执行 `fvm flutter pub get`
 3. 重载 IDE

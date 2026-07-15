@@ -10,13 +10,13 @@ Production-grade long connection library for Flutter, supporting WebSocket, Syst
 - **Auto Reconnect**: Exponential backoff strategy with jitter
 - **Heartbeat Detection**: Periodic ping/pong to maintain connection health
 - **Lifecycle Awareness**: Automatically respond to app foreground/background transitions
-- **Cross-platform**: iOS/Android/Web
+- **Cross-platform**: iOS/Android/Web/macOS/Windows/Linux
 
 ## Installation
 
 ```yaml
 dependencies:
-  pd_longlink: ^0.1.0
+  pd_longlink: ^1.0.0
 ```
 
 ## Quick Start
@@ -91,7 +91,30 @@ void main() {
 |---|---|
 | `error` | Error only |
 | `warning` | Error + Warning |
+| `info` | Error + Warning + Info |
 | `debug` | All logs |
+
+#### PDLongLinkErrorCode
+
+| Value | Description |
+|---|---|
+| `unknown` | Unknown error |
+| `connectionTimeout` | Connection timed out |
+| `authenticationFailed` | Authentication failed |
+| `networkUnavailable` | Network unavailable |
+| `protocolError` | Protocol error |
+| `heartbeatTimeout` | Heartbeat timeout |
+| `connectionClosed` | Connection closed |
+| `sendFailed` | Send message failed |
+| `clientDisposed` | Client has been disposed |
+| `maxReconnectAttemptsReached` | Max reconnect attempts reached |
+
+#### PDMessageQueueOverflowStrategy
+
+| Value | Description |
+|---|---|
+| `dropOldest` | Drop the oldest message when queue is full |
+| `dropNewest` | Drop the newest message when queue is full |
 
 ### Configuration
 
@@ -108,9 +131,8 @@ const PDLongLinkConfig({
   this.autoConnect = false,
   this.enableHeartbeat = true,
   this.sseConfig,                       // Required for SSE mode
-  this.enableLogging = !kReleaseMode,
-  this.logLevel = PDLogLevel.debug,
-  this.logCallback,
+  this.messageQueueConfig = const PDMessageQueueConfig(),
+  this.logger,                          // Custom logger instance
 });
 ```
 
@@ -137,6 +159,7 @@ const PDHeartbeatConfig({
   this.interval = const Duration(seconds: 30),
   this.timeout = const Duration(seconds: 10),
   this.pingMessage = 'ping',
+  this.pongMessage = 'pong',
 });
 ```
 
@@ -150,6 +173,16 @@ const PDSseConfig({
   this.parseSseFormat = true,
   this.lastEventId,
   this.retryDelay,
+});
+```
+
+#### PDMessageQueueConfig
+
+```dart
+const PDMessageQueueConfig({
+  this.enabled = false,
+  this.maxSize = 100,
+  this.overflowStrategy = PDMessageQueueOverflowStrategy.dropOldest,
 });
 ```
 
@@ -168,6 +201,7 @@ PDLongLinkClient({required PDLongLinkConfig config})
 | `state` | `Stream<PDLongLinkState>` | State change stream |
 | `events` | `Stream<PDLongLinkEvent>` | Event stream |
 | `currentState` | `PDLongLinkState` | Current connection state |
+| `lastEventId` | `String?` | Last event ID (for SSE resume) |
 
 #### Methods
 
@@ -196,6 +230,21 @@ Future<void> sendBinary(List<int> bytes)
 Future<void> dispose()
 ```
 
+**setLogLevel()**
+```dart
+void setLogLevel(PDLogLevel level)
+```
+
+**enableLogging()**
+```dart
+void enableLogging(bool enable)
+```
+
+**setLogCallback()**
+```dart
+void setLogCallback(PDLogCallback? callback)
+```
+
 ### PDLongLinkEvent
 
 ```dart
@@ -204,6 +253,7 @@ const PDLongLinkEvent({
   this.text,
   this.binary,
   this.error,
+  this.errorCode,
   this.closeCode,
   this.closeReason,
 });
@@ -212,17 +262,32 @@ const PDLongLinkEvent({
 ### PDLogger
 
 ```dart
-PDLogger.configure({
-  required bool enableLogging,
-  required PDLogLevel logLevel,
-  PDLogCallback? logCallback,
+PDLogger({
+  this.enableLogging = true,
+  this.logLevel = PDLogLevel.warning,
+  this.logCallback,
 });
 ```
+
+**Instance Methods:**
+
+- `logDebug(String module, String message)` — Log a debug-level message
+- `logInfo(String module, String message)` — Log an info-level message
+- `logWarning(String module, String message, {Object? error, StackTrace? stackTrace})` — Log a warning-level message
+- `logError(String module, String message, {Object? error, StackTrace? stackTrace})` — Log an error-level message
+
+**PDLongLinkClient Proxy Methods:**
+
+The `PDLongLinkClient` provides convenience methods that delegate to its internal `PDLogger` instance:
+
+- `setLogLevel(PDLogLevel level)` — Update the log level
+- `enableLogging(bool enable)` — Enable or disable logging
+- `setLogCallback(PDLogCallback? callback)` — Set a custom log callback
 
 ### PDLongLinkTransportException
 
 ```dart
-const PDLongLinkTransportException(this.message);
+const PDLongLinkTransportException(this.message, {this.errorCode});
 ```
 
 ## Platform Behavior
@@ -372,7 +437,7 @@ class _LongLinkDemoState extends State<LongLinkDemo> {
 2. **SSE Limitation**: SSE mode only supports receiving messages, not sending
 3. **System Mode**: Only available on Android/iOS, falls back to IO mode on other platforms
 4. **Lifecycle**: Client automatically listens to App lifecycle events
-5. **Logging**: Disabled in release mode by default
+5. **Logging**: Default log level is `warning`
 
 ## License
 
